@@ -32,4 +32,82 @@
     const bird = { x: 100, y: 50, width: 50, height: 50 };
 
     // 川普
-    const trump =
+    const trump = { x: 300, y: 400, width: 100, height: 100, poopImg: trumpPoopImg };
+
+    let score = 0;
+    let timer = 15; // 秒
+    let poopY = bird.y + bird.height;
+    let isPooping = false;
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
+
+      if (isPooping) {
+        ctx.drawImage(trump.poopImg, trump.x + trump.width / 2 - 15, poopY, 30, 30);
+      }
+
+      ctx.drawImage(trumpDownImg, trump.x, trump.y, trump.width, trump.height);
+
+      ctx.fillStyle = "black";
+      ctx.font = "20px Arial";
+      ctx.fillText("得分：" + score, 20, 30);
+      ctx.fillText("剩餘時間：" + timer + " 秒", 20, 60);
+    }
+
+    function gameLoop() {
+      if (timer <= 0) return endGame();
+      if (isPooping) poopY += 5;
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function poop() {
+      if (isPooping) return;
+      isPooping = true;
+      poopY = bird.y + bird.height;
+
+      // 簡單碰撞偵測
+      const interval = setInterval(() => {
+        if (
+          poopY > trump.y &&
+          poopY < trump.y + trump.height &&
+          bird.x + bird.width / 2 > trump.x &&
+          bird.x + bird.width / 2 < trump.x + trump.width
+        ) {
+          score++;
+          isPooping = false;
+          clearInterval(interval);
+        }
+
+        if (poopY > canvas.height) {
+          isPooping = false;
+          clearInterval(interval);
+        }
+      }, 30);
+    }
+
+    function endGame() {
+      alert("遊戲結束！你總共砸中 " + score + " 次川普 💩");
+    }
+
+    // 控制
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        poop();
+      }
+    });
+
+    // 倒數計時器
+    setInterval(() => {
+      if (timer > 0) timer--;
+    }, 1000);
+
+    // 開始
+    window.onload = () => {
+      gameLoop();
+    };
+  </script>
+</body>
+</html>
+
