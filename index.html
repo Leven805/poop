@@ -1,56 +1,26 @@
-// 載入圖片
-const birdImg = new Image();
-birdImg.src = 'brid.png';
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>砸川普完整版</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: sans-serif;
+      background: #d0e8ff;
+    }
 
-const trumpUpImg = new Image();
-trumpUpImg.src = 'trumpup.png';
+    canvas {
+      display: block;
+      margin: 0 auto;
+      background: url('images/Gemini_Generated_Image_h09x9fh09x9fh09x9j.jpg') no-repeat center center;
+      background-size: cover;
+    }
 
-const trumpDownImg = new Image();
-trumpDownImg.src = 'trumpdown.png';
-
-const trumpPoopImg = new Image();
-trumpPoopImg.src = 'trumppoop.png';
-
-// 建立鳥和特朗普物件
-const bird = {
-  img: birdImg,
-  x: 50,
-  y: 50,
-  width: 50,
-  height: 50
-};
-
-const trump = {
-  upImg: trumpUpImg,
-  downImg: trumpDownImg,
-  poopImg: trumpPoopImg,
-  x: 300,
-  y: 300,
-  width: 100,
-  height: 100
-};
-
-// 遊戲迴圈
-function gameLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(bird.img, bird.x, bird.y, bird.width, bird.height);
-  ctx.drawImage(trump.upImg, trump.x, trump.y, trump.width, trump.height);
-  ctx.fillStyle = "black";
-  ctx.fillText("分數: " + score, 10, 20);
-  ctx.fillText("剩餘時間: " + Math.floor(timer), 10, 40);
-  ctx.fillText("鳥的位置: (" + bird.x + ", " + bird.y + ")", 10, 60);
-  timer -= (1 / 60); // 每幀減少時間
-  requestAnimationFrame(gameLoop);
-}
-
-// 遊戲初始化
-function init() {
-  canvas = document.getElementById("myCanvas");
-  ctx = canvas.getContext("2d");
-  score = 0;
-  timer = 60;
-  gameLoop();
-}
-
-// 遊戲開始
-init();
+    #ui {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
