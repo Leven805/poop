@@ -15,7 +15,7 @@
     canvas {
       display: block;
       margin: 0 auto;
-      background: url('Gemini_Generated_Image_h09x9fh09x9fh09x.jpg') no-repeat center center;
+      background: url('images/background.jpg') no-repeat center center;
       background-size: cover;
     }
 
@@ -74,23 +74,15 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    const bird = {
-      x: 300,
-      y: 50,
-      width: 40,
-      height: 40,
-      img: new Image(),
-    };
+    const bird = { x: 300, y: 50, width: 40, height: 40, img: new Image() };
+    const trump = { x: 260, y: 300, width: 80, height: 80, img: new Image() };
+    const poopImg = new Image();
+    
+    bird.img.src = "images/bird.png";
+    trump.img.src = "images/trump.png";
+    poopImg.src = "images/poop.png"; // **大便圖片**
 
     const poopList = [];
-    let trump = {
-      x: 260,
-      y: 300,
-      width: 80,
-      height: 80,
-      img: new Image(),
-    };
-
     let score = 0;
     let combo = 0;
     let timeLeft = 15;
@@ -101,20 +93,8 @@
     const redButton = document.getElementById("redButton");
     const taiwanText = document.getElementById("taiwanText");
 
-    bird.img.src = "images/bird.png";
-    trump.img.src = "images/trumpup.png";
-
-    const voiceList = [
-      "https://www.soundjay.com/voice/trump-youre-fired.mp3",
-      "https://www.soundjay.com/voice/trump-wrong.mp3",
-      "https://www.soundjay.com/voice/trump-fake-news.mp3",
-      "https://www.soundjay.com/voice/trump-stable-genius.mp3",
-      "https://www.soundjay.com/voice/trump-greatest-economy.mp3",
-      "https://www.soundjay.com/voice/trump-sad.mp3"
-    ];
-
     function playRandomVoice() {
-      const audio = new Audio(voiceList[Math.floor(Math.random() * voiceList.length)]);
+      const audio = new Audio("https://www.soundjay.com/voice/trump-wrong.mp3");
       audio.play();
     }
 
@@ -123,12 +103,7 @@
       ctx.drawImage(bird.img, bird.x, bird.y, bird.width, bird.height);
       ctx.drawImage(trump.img, trump.x, trump.y, trump.width, trump.height);
 
-      poopList.forEach(p => {
-        ctx.fillStyle = "brown";
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
-        ctx.fill();
-      });
+      poopList.forEach(p => ctx.drawImage(poopImg, p.x, p.y, 20, 20)); // 改用圖片繪製大便
     }
 
     function spawnPoopRain() {
@@ -141,11 +116,7 @@
       poopList.forEach((p, i) => {
         p.y += 5;
 
-        if (
-          p.y > trump.y &&
-          p.x > trump.x &&
-          p.x < trump.x + trump.width
-        ) {
+        if (p.y > trump.y && p.x > trump.x && p.x < trump.x + trump.width) {
           poopList.splice(i, 1);
           score++;
           combo++;
@@ -159,24 +130,19 @@
           }
         }
 
-        if (p.y > canvas.height) {
-          poopList.splice(i, 1);
-          combo = 0;
-        }
+        if (p.y > canvas.height) poopList.splice(i, 1);
       });
     }
 
     function loop() {
       update();
       draw();
-      if (!gameOver) {
-        requestAnimationFrame(loop);
-      }
+      if (!gameOver) requestAnimationFrame(loop);
     }
 
     document.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft") bird.x -= 15;
-      if (e.key === "ArrowRight") bird.x += 15;
+      if (e.key === "ArrowLeft" && bird.x > 0) bird.x -= 15;
+      if (e.key === "ArrowRight" && bird.x < canvas.width - bird.width) bird.x += 15;
       if (e.key === " ") poopList.push({ x: bird.x + 15, y: bird.y + 30 });
     });
 
@@ -186,9 +152,8 @@
 
     redButton.addEventListener("click", () => {
       redButton.style.display = "none";
-      bird.img.src = "images/bird.png"; // 跪下的圖（示意）
+      trump.img.src = "images/trump_poop.png"; // 變成被砸到的表情
       setTimeout(() => {
-        bird.y = 120;
         taiwanText.style.display = "block";
         trump.y = 150;
       }, 800);
@@ -207,9 +172,7 @@
       }, 1000);
     }
 
-    window.onload = () => {
-      startGame();
-    };
+    window.onload = () => startGame();
   </script>
 </body>
 </html>
