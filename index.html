@@ -1,113 +1,122 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>砸川普</title>
   <style>
     body {
       margin: 0;
       overflow: hidden;
-      font-family: sans-serif;
+      background: #fff;
     }
     canvas {
       display: block;
-      background: #eef;
     }
   </style>
 </head>
 <body>
-  <canvas id="myCanvas" width="800" height="600"></canvas>
+  <canvas id="myCanvas"></canvas>
 
   <script>
     const canvas = document.getElementById("myCanvas");
     const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     // 載入圖片
-    const birdImg = new Image(); birdImg.src = "images/brid.png";
-    const trumpUpImg = new Image(); trumpUpImg.src = "images/trumpup.png";
-    const trumpDownImg = new Image(); trumpDownImg.src = "images/trumpdown.png";
-    const trumpPoopImg = new Image(); trumpPoopImg.src = "images/trumppoop.png";
+    const birdImg = new Image();
+    birdImg.src = "images/brid.png";
 
-    // 小鳥
-    const bird = { x: 100, y: 50, width: 50, height: 50 };
+    const trumpUpImg = new Image();
+    trumpUpImg.src = "images/trumpup.png";
 
-    // 川普
-    const trump = { x: 300, y: 400, width: 100, height: 100, poopImg: trumpPoopImg };
+    const trumpDownImg = new Image();
+    trumpDownImg.src = "images/trumpdown.png";
 
-    let score = 0;
-    let timer = 15; // 秒
-    let poopY = bird.y + bird.height;
+    const trumpPoopImg = new Image();
+    trumpPoopImg.src = "images/trumppoop.png";
+
+    // 建立小鳥
+    const bird = {
+      x: 100,
+      y: 50,
+      width: 80,
+      height: 80,
+      speed: 5
+    };
+
+    // 建立川普
+    const trump = {
+      x: canvas.width / 2 - 75,
+      y: canvas.height - 150,
+      width: 150,
+      height: 150,
+      isHit: false
+    };
+
+    let poopX = bird.x;
+    let poopY = bird.y;
     let isPooping = false;
+    let score = 0;
 
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
-
-      if (isPooping) {
-        ctx.drawImage(trump.poopImg, trump.x + trump.width / 2 - 15, poopY, 30, 30);
-      }
-
-      ctx.drawImage(trumpDownImg, trump.x, trump.y, trump.width, trump.height);
-
-      ctx.fillStyle = "black";
-      ctx.font = "20px Arial";
-      ctx.fillText("得分：" + score, 20, 30);
-      ctx.fillText("剩餘時間：" + timer + " 秒", 20, 60);
-    }
-
-    function gameLoop() {
-      if (timer <= 0) return endGame();
-      if (isPooping) poopY += 5;
-      draw();
-      requestAnimationFrame(gameLoop);
-    }
-
-    function poop() {
-      if (isPooping) return;
-      isPooping = true;
-      poopY = bird.y + bird.height;
-
-      // 簡單碰撞偵測
-      const interval = setInterval(() => {
-        if (
-          poopY > trump.y &&
-          poopY < trump.y + trump.height &&
-          bird.x + bird.width / 2 > trump.x &&
-          bird.x + bird.width / 2 < trump.x + trump.width
-        ) {
-          score++;
-          isPooping = false;
-          clearInterval(interval);
-        }
-
-        if (poopY > canvas.height) {
-          isPooping = false;
-          clearInterval(interval);
-        }
-      }, 30);
-    }
-
-    function endGame() {
-      alert("遊戲結束！你總共砸中 " + score + " 次川普 💩");
-    }
-
-    // 控制
-    document.addEventListener("keydown", (e) => {
-      if (e.code === "Space") {
-        poop();
+    // 事件：滑鼠點擊 -> 開始砸
+    canvas.addEventListener("click", () => {
+      if (!isPooping) {
+        poopX = bird.x + bird.width / 2 - 20;
+        poopY = bird.y + bird.height;
+        isPooping = true;
       }
     });
 
-    // 倒數計時器
-    setInterval(() => {
-      if (timer > 0) timer--;
-    }, 1000);
+    // 遊戲主迴圈
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 開始
-    window.onload = () => {
-      gameLoop();
-    };
+      // 畫鳥
+      ctx.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
+
+      // 畫川普
+      if (trump.isHit) {
+        ctx.drawImage(trumpDownImg, trump.x, trump.y, trump.width, trump.height);
+      } else {
+        ctx.drawImage(trumpUpImg, trump.x, trump.y, trump.width, trump.height);
+      }
+
+      // 畫大便
+      if (isPooping) {
+        ctx.drawImage(trumpPoopImg, poopX, poopY, 40, 40);
+        poopY += 10;
+
+        // 碰撞偵測
+        if (
+          poopY + 40 > trump.y &&
+          poopX > trump.x &&
+          poopX < trump.x + trump.width
+        ) {
+          trump.isHit = true;
+          isPooping = false;
+          score++;
+          setTimeout(() => {
+            trump.isHit = false;
+          }, 500);
+        }
+
+        // 超出畫面
+        if (poopY > canvas.height) {
+          isPooping = false;
+        }
+      }
+
+      // 分數
+      ctx.fillStyle = "black";
+      ctx.font = "24px sans-serif";
+      ctx.fillText("分數：" + score, 20, 40);
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    // 開始遊戲
+    gameLoop();
   </script>
 </body>
 </html>
-
