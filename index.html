@@ -1,215 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>砸川普完整版</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: sans-serif;
-      background: #d0e8ff;
-    }
+// 載入圖片
+const birdImg = new Image();
+birdImg.src = 'brid.png';
 
-    canvas {
-      display: block;
-      margin: 0 auto;
-      background: url('Gemini_Generated_Image_h09x9fh09x9fh09x.jpg') no-repeat center center;
-      background-size: cover;
-    }
+const trumpUpImg = new Image();
+trumpUpImg.src = 'trumpup.png';
 
-    #ui {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #000;
-      font-size: 20px;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 8px 16px;
-      border-radius: 10px;
-      z-index: 2;
-    }
+const trumpDownImg = new Image();
+trumpDownImg.src = 'trumpdown.png';
 
-    #redButton {
-      display: none;
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 12px 24px;
-      font-size: 18px;
-      background-color: red;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      z-index: 3;
-    }
+const trumpPoopImg = new Image();
+trumpPoopImg.src = 'trumppoop.png';
 
-    #taiwanText {
-      display: none;
-      position: absolute;
-      top: 150px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 60px;
-      font-weight: bold;
-      color: white;
-      text-shadow: 3px 3px 10px black;
-      z-index: 4;
-    }
-  </style>
-</head>
-<body>
-  <canvas id="gameCanvas" width="600" height="400"></canvas>
-  <div id="ui">
-    分數: <span id="score">0</span> | 時間: <span id="timer">15</span> 秒
-  </div>
-  <button id="redButton">按下贖罪</button>
-  <div id="taiwanText">TAIWAN</div>
+// 建立鳥和特朗普物件
+const bird = {
+  img: birdImg,
+  x: 50,
+  y: 50,
+  width: 50,
+  height: 50
+};
 
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
+const trump = {
+  upImg: trumpUpImg,
+  downImg: trumpDownImg,
+  poopImg: trumpPoopImg,
+  x: 300,
+  y: 300,
+  width: 100,
+  height: 100
+};
 
-    const bird = {
-      x: 300,
-      y: 50,
-      width: 40,
-      height: 40,
-      img: new Image(),
-    };
+// 遊戲迴圈
+function gameLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(bird.img, bird.x, bird.y, bird.width, bird.height);
+  ctx.drawImage(trump.upImg, trump.x, trump.y, trump.width, trump.height);
+  ctx.fillStyle = "black";
+  ctx.fillText("分數: " + score, 10, 20);
+  ctx.fillText("剩餘時間: " + Math.floor(timer), 10, 40);
+  ctx.fillText("鳥的位置: (" + bird.x + ", " + bird.y + ")", 10, 60);
+  timer -= (1 / 60); // 每幀減少時間
+  requestAnimationFrame(gameLoop);
+}
 
-    const poopList = [];
-    let trump = {
-      x: 260,
-      y: 300,
-      width: 80,
-      height: 80,
-      img: new Image(),
-    };
+// 遊戲初始化
+function init() {
+  canvas = document.getElementById("myCanvas");
+  ctx = canvas.getContext("2d");
+  score = 0;
+  timer = 60;
+  gameLoop();
+}
 
-    let score = 0;
-    let combo = 0;
-    let timeLeft = 15;
-    let gameInterval;
-    let gameOver = false;
-    let poopRain = false;
-
-    const redButton = document.getElementById("redButton");
-    const taiwanText = document.getElementById("taiwanText");
-
-    bird.img.src = "images/bird.png";
-    trump.img.src = "images/trumpup.png";
-
-    const voiceList = [
-      "https://www.soundjay.com/voice/trump-youre-fired.mp3",
-      "https://www.soundjay.com/voice/trump-wrong.mp3",
-      "https://www.soundjay.com/voice/trump-fake-news.mp3",
-      "https://www.soundjay.com/voice/trump-stable-genius.mp3",
-      "https://www.soundjay.com/voice/trump-greatest-economy.mp3",
-      "https://www.soundjay.com/voice/trump-sad.mp3"
-    ];
-
-    function playRandomVoice() {
-      const audio = new Audio(voiceList[Math.floor(Math.random() * voiceList.length)]);
-      audio.play();
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(bird.img, bird.x, bird.y, bird.width, bird.height);
-      ctx.drawImage(trump.img, trump.x, trump.y, trump.width, trump.height);
-
-      poopList.forEach(p => {
-        ctx.fillStyle = "brown";
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
-        ctx.fill();
-      });
-    }
-
-    function spawnPoopRain() {
-      for (let i = 0; i < 30; i++) {
-        poopList.push({ x: Math.random() * 600, y: Math.random() * -400 });
-      }
-    }
-
-    function update() {
-      poopList.forEach((p, i) => {
-        p.y += 5;
-
-        if (
-          p.y > trump.y &&
-          p.x > trump.x &&
-          p.x < trump.x + trump.width
-        ) {
-          poopList.splice(i, 1);
-          score++;
-          combo++;
-          document.getElementById("score").innerText = score;
-          playRandomVoice();
-
-          if (combo === 3 && !poopRain) {
-            poopRain = true;
-            spawnPoopRain();
-            redButton.style.display = "block";
-          }
-        }
-
-        if (p.y > canvas.height) {
-          poopList.splice(i, 1);
-          combo = 0;
-        }
-      });
-    }
-
-    function loop() {
-      update();
-      draw();
-      if (!gameOver) {
-        requestAnimationFrame(loop);
-      }
-    }
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft") bird.x -= 15;
-      if (e.key === "ArrowRight") bird.x += 15;
-      if (e.key === " ") poopList.push({ x: bird.x + 15, y: bird.y + 30 });
-    });
-
-    canvas.addEventListener("click", () => {
-      poopList.push({ x: bird.x + 15, y: bird.y + 30 });
-    });
-
-    redButton.addEventListener("click", () => {
-      redButton.style.display = "none";
-      bird.img.src = "images/bird.png"; // 跪下的圖（示意）
-      setTimeout(() => {
-        bird.y = 120;
-        taiwanText.style.display = "block";
-        trump.y = 150;
-      }, 800);
-    });
-
-    function startGame() {
-      loop();
-      gameInterval = setInterval(() => {
-        timeLeft--;
-        document.getElementById("timer").innerText = timeLeft;
-        if (timeLeft <= 0) {
-          clearInterval(gameInterval);
-          gameOver = true;
-          alert("時間到！你的分數是：" + score);
-        }
-      }, 1000);
-    }
-
-    window.onload = () => {
-      startGame();
-    };
-  </script>
-</body>
-</html>
+// 遊戲開始
+init();
