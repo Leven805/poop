@@ -1,26 +1,35 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>砸川普完整版</title>
+  <meta charset="UTF-8">
+  <title>砸川普</title>
   <style>
     body {
       margin: 0;
       overflow: hidden;
       font-family: sans-serif;
-      background: #d0e8ff;
     }
-
     canvas {
       display: block;
-      margin: 0 auto;
-      background: url('images/Gemini_Generated_Image_h09x9fh09x9fh09x9j.jpg') no-repeat center center;
-      background-size: cover;
+      background: #eef;
     }
+  </style>
+</head>
+<body>
+  <canvas id="myCanvas" width="800" height="600"></canvas>
 
-    #ui {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
+  <script>
+    const canvas = document.getElementById("myCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // 載入圖片
+    const birdImg = new Image(); birdImg.src = "images/brid.png";
+    const trumpUpImg = new Image(); trumpUpImg.src = "images/trumpup.png";
+    const trumpDownImg = new Image(); trumpDownImg.src = "images/trumpdown.png";
+    const trumpPoopImg = new Image(); trumpPoopImg.src = "images/trumppoop.png";
+
+    // 小鳥
+    const bird = { x: 100, y: 50, width: 50, height: 50 };
+
+    // 川普
+    const trump =
